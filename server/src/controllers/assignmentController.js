@@ -2,6 +2,7 @@ import Assignment from "../models/Assignment.js";
 import Asset from "../models/Asset.js";
 import Employee from "../models/Employee.js";
 import { escapeRegex } from "../utils/queryHelpers.js";
+import { logActivity } from "../utils/logActivity.js";
 
 const populateFields = [
   { path: "asset", select: "assetTag name category" },
@@ -76,7 +77,12 @@ export const createAssignment = async (req, res) => {
       notes,
       assignedBy: req.user._id,
     });
-    await assignment.populate(populateFields);
+        await assignment.populate(populateFields);
+    await logActivity(
+      "assigned",
+      `${asset.category} ${asset.assetTag} assigned to ${employee.name}`,
+      req.user._id
+    );
     res.status(201).json({ assignment });
   } catch (err) {
     // Undo the status change if saving the assignment failed
@@ -103,6 +109,11 @@ export const returnAssignment = async (req, res) => {
     { status: "available" }
   );
 
-  await assignment.populate(populateFields);
+    await assignment.populate(populateFields);
+  await logActivity(
+    "returned",
+    `${assignment.asset?.category} ${assignment.asset?.assetTag} returned by ${assignment.employee?.name}`,
+    req.user._id
+  );
   res.json({ assignment });
 };

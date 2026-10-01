@@ -7,9 +7,10 @@ import Assets from "./pages/Assets";
 import Employees from "./pages/Employees";
 import Assignments from "./pages/Assignments";
 import Maintenance from "./pages/Maintenance";
+import Dashboard from "./pages/Dashboard";
 
 export default function App() {
-  const pages = { "/assets": <Assets />, "/employees": <Employees />, "/assignments": <Assignments />, "/maintenance": <Maintenance /> };
+  const pages = { "/assets": <Assets />, "/employees": <Employees />, "/assignments": <Assignments />, "/maintenance": <Maintenance />, "/": <Dashboard /> };
   return (
     <Routes>
       <Route path="/login" element={<AuthPage mode="login" />} />

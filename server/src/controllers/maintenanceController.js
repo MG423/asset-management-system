@@ -1,6 +1,7 @@
 import MaintenanceRecord from "../models/MaintenanceRecord.js";
 import Asset from "../models/Asset.js";
 import { pickFields, escapeRegex } from "../utils/queryHelpers.js";
+import { logActivity } from "../utils/logActivity.js";
 
 const CREATE_FIELDS = ["asset", "issue", "vendor", "cost", "startDate", "notes"];
 const UPDATE_FIELDS = ["issue", "vendor", "cost", "startDate", "notes"];
@@ -73,7 +74,12 @@ export const createRecord = async (req, res) => {
       asset: asset._id,
       createdBy: req.user._id,
     });
-    await record.populate(populateFields);
+        await record.populate(populateFields);
+    await logActivity(
+      "maintenance_started",
+      `${asset.category} ${asset.assetTag} sent for maintenance`,
+      req.user._id
+    );
     res.status(201).json({ record });
   } catch (err) {
     // Undo the status change if saving the record failed
@@ -120,7 +126,15 @@ export const completeRecord = async (req, res) => {
     { status: outcome }
   );
 
-  await record.populate(populateFields);
+    await record.populate(populateFields);
+  const label = `${record.asset?.category} ${record.asset?.assetTag}`;
+  await logActivity(
+    "maintenance_completed",
+    outcome === "retired"
+      ? `${label} maintenance completed, asset retired`
+      : `${label} maintenance completed`,
+    req.user._id
+  );
   res.json({ record });
 };
 

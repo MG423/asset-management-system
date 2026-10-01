@@ -59,8 +59,9 @@ export const createAsset = async (req, res) => {
     res.status(400);
     throw new Error(`To set this status, use the ${managed.page} page`);
   }
-  const asset = await Asset.create(data);
-  res.status(201).json({ asset });
+    const asset = await Asset.create(data);
+    await logActivity("asset_added", `${asset.category} ${asset.assetTag} added`, req.user._id);
+    res.status(201).json({ asset });
 };
 
 export const updateAsset = async (req, res) => {
@@ -101,7 +102,8 @@ export const deleteAsset = async (req, res) => {
       "This asset has assignment or maintenance history and can't be deleted. Mark it as retired instead"
     );
   }
-  const asset = await Asset.findByIdAndDelete(req.params.id);
+    const asset = await Asset.findByIdAndDelete(req.params.id);
   if (!asset) throw notFoundError(res);
+  await logActivity("asset_deleted", `${asset.category} ${asset.assetTag} deleted`, req.user._id);
   res.json({ message: "Asset deleted" });
 };
