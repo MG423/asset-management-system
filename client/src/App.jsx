@@ -1,21 +1,26 @@
-import { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Layout, { navItems } from "./components/Layout";
+import AuthPage from "./pages/AuthPage";
+import Placeholder from "./pages/Placeholder";
 
 export default function App() {
-  const [status, setStatus] = useState("checking...");
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then((res) => res.json())
-      .then((data) => setStatus(data.status))
-      .catch(() => setStatus("server unreachable"));
-  }, []);
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100">
-      <div className="rounded-lg bg-white p-8 shadow">
-        <h1 className="text-2xl font-bold">Asset Management System</h1>
-        <p className="mt-2 text-slate-600">API status: {status}</p>
-      </div>
-    </div>
+    <Routes>
+      <Route path="/login" element={<AuthPage mode="login" />} />
+      <Route path="/register" element={<AuthPage mode="register" />} />
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout />}>
+          {navItems.map((item) => (
+            <Route
+              key={item.to}
+              path={item.to}
+              element={<Placeholder title={item.label} />}
+            />
+          ))}
+        </Route>
+      </Route>
+    </Routes>
   );
 }
