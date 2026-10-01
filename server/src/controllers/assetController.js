@@ -1,5 +1,6 @@
 import Asset from "../models/Asset.js";
 import Assignment from "../models/Assignment.js";
+import MaintenanceRecord from "../models/MaintenanceRecord.js";
 import { pickFields, escapeRegex } from "../utils/queryHelpers.js";
 
 const FIELDS = [
@@ -11,6 +12,18 @@ const notFoundError = (res) => {
   res.status(404);
   return new Error("Asset not found");
 };
+
+   // Statuses controlled by other modules, never set by hand
+const MANAGED = new Map([
+     ["assigned", {
+       page: "Assignments",
+       hasOpen: (id) => Assignment.exists({ asset: id, status: "active" }),
+     }],
+     ["maintenance", {
+       page: "Maintenance",
+       hasOpen: (id) => MaintenanceRecord.exists({ asset: id, status: "open" }),
+     }],
+   ]);
 
 export const getAssets = async (req, res) => {
   const page = Math.max(parseInt(req.query.page) || 1, 1);
@@ -39,12 +52,12 @@ export const getAsset = async (req, res) => {
   if (!asset) throw notFoundError(res);
   res.json({ asset });
 };
-
 export const createAsset = async (req, res) => {
   const data = pickFields(req.body, FIELDS);
-  if (data.status === "assigned") {
+  const managed = MANAGED.get(data.status);
+  if (managed) {
     res.status(400);
-    throw new Error("To assign an asset, use the Assignments page");
+    throw new Error(`To set this status, use the ${managed.page} page`);
   }
   const asset = await Asset.create(data);
   res.status(201).json({ asset });
@@ -56,16 +69,17 @@ export const updateAsset = async (req, res) => {
   if (!current) throw notFoundError(res);
 
   if (data.status && data.status !== current.status) {
-    if (data.status === "assigned") {
+    const entering = MANAGED.get(data.status);
+    if (entering) {
       res.status(400);
-      throw new Error("To assign an asset, use the Assignments page");
+      throw new Error(`To set this status, use the ${entering.page} page`);
     }
-    if (
-      current.status === "assigned" &&
-      (await Assignment.exists({ asset: current._id, status: "active" }))
-    ) {
+    const leaving = MANAGED.get(current.status);
+    if (leaving && (await leaving.hasOpen(current._id))) {
       res.status(400);
-      throw new Error("This asset is currently assigned. Return it from the Assignments page first");
+      throw new Error(
+        `This asset's status is managed on the ${leaving.page} page. Finish it there first`
+      );
     }
   }
 
@@ -77,9 +91,15 @@ export const updateAsset = async (req, res) => {
 };
 
 export const deleteAsset = async (req, res) => {
-  if (await Assignment.exists({ asset: req.params.id })) {
+  const [hasAssignments, hasMaintenance] = await Promise.all([
+    Assignment.exists({ asset: req.params.id }),
+    MaintenanceRecord.exists({ asset: req.params.id }),
+  ]);
+  if (hasAssignments || hasMaintenance) {
     res.status(400);
-    throw new Error("This asset has assignment history and can't be deleted. Mark it as retired instead");
+    throw new Error(
+      "This asset has assignment or maintenance history and can't be deleted. Mark it as retired instead"
+    );
   }
   const asset = await Asset.findByIdAndDelete(req.params.id);
   if (!asset) throw notFoundError(res);

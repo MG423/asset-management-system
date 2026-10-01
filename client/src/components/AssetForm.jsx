@@ -78,7 +78,7 @@ export default function AssetForm({ asset, onClose, onSaved }) {
             <label className={labelClass}>Status</label>
             <select name="status" value={form.status} onChange={handleChange}
               className={`${inputClass} capitalize`}>
-              {STATUSES.filter((s) => s !== "assigned" || asset?.status === "assigned").map((s) => (<option key={s}>{s}</option>))}
+              {STATUSES.filter((s) => !["assigned", "maintenance"].includes(s) || asset?.status === s).map((s) => (<option key={s}>{s}</option>))}
             </select>
           </div>
           <div>

@@ -6,9 +6,10 @@ import Placeholder from "./pages/Placeholder";
 import Assets from "./pages/Assets";
 import Employees from "./pages/Employees";
 import Assignments from "./pages/Assignments";
+import Maintenance from "./pages/Maintenance";
 
 export default function App() {
-  const pages = { "/assets": <Assets />, "/employees": <Employees />, "/assignments": <Assignments /> };
+  const pages = { "/assets": <Assets />, "/employees": <Employees />, "/assignments": <Assignments />, "/maintenance": <Maintenance /> };
   return (
     <Routes>
       <Route path="/login" element={<AuthPage mode="login" />} />
