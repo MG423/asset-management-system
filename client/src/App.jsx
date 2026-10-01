@@ -4,9 +4,10 @@ import Layout, { navItems } from "./components/Layout";
 import AuthPage from "./pages/AuthPage";
 import Placeholder from "./pages/Placeholder";
 import Assets from "./pages/Assets";
+import Employees from "./pages/Employees";
 
 export default function App() {
-    const pages = { "/assets": <Assets /> };
+  const pages = { "/assets": <Assets />, "/employees": <Employees /> };
   return (
     <Routes>
       <Route path="/login" element={<AuthPage mode="login" />} />

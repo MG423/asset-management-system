@@ -1,17 +1,10 @@
 import Asset from "../models/Asset.js";
+import { pickFields, escapeRegex } from "../utils/queryHelpers.js";
 
 const FIELDS = [
   "assetTag", "name", "category", "serialNumber",
   "purchaseDate", "cost", "status", "notes",
 ];
-
-// Only allow known fields from the request body
-const pickFields = (body) =>
-  Object.fromEntries(
-    FIELDS.filter((f) => body[f] !== undefined).map((f) => [f, body[f]])
-  );
-
-const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const notFoundError = (res) => {
   res.status(404);
@@ -47,12 +40,12 @@ export const getAsset = async (req, res) => {
 };
 
 export const createAsset = async (req, res) => {
-  const asset = await Asset.create(pickFields(req.body));
+  const asset = await Asset.create(pickFields(req.body, FIELDS));
   res.status(201).json({ asset });
 };
 
 export const updateAsset = async (req, res) => {
-  const asset = await Asset.findByIdAndUpdate(req.params.id, pickFields(req.body), {
+  const asset = await Asset.findByIdAndUpdate(req.params.id, pickFields(req.body, FIELDS), {
     new: true,
     runValidators: true,
   });

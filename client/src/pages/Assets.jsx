@@ -5,6 +5,7 @@ import useDebounce from "../hooks/useDebounce";
 import AssetForm from "../components/AssetForm";
 import StatusBadge from "../components/StatusBadge";
 import { CATEGORIES, STATUSES } from "../constants/assets";
+import Pagination from "../components/Pagination";
 
 export default function Assets() {
   const { user } = useAuth();
@@ -137,21 +138,13 @@ export default function Assets() {
           </tbody>
         </table>
       </div>
-
-      <div className="mt-4 flex items-center justify-between text-sm text-slate-600">
-        <span>{pagination.total} assets</span>
-        <div className="flex items-center gap-3">
-          <button disabled={page <= 1} onClick={() => setPage(page - 1)}
-            className="rounded border border-slate-300 bg-white px-3 py-1 disabled:opacity-40">
-            Previous
-          </button>
-          <span>Page {page} of {Math.max(pagination.pages, 1)}</span>
-          <button disabled={page >= pagination.pages} onClick={() => setPage(page + 1)}
-            className="rounded border border-slate-300 bg-white px-3 py-1 disabled:opacity-40">
-            Next
-          </button>
-        </div>
-      </div>
+   <Pagination
+     page={page}
+     pages={pagination.pages}
+     total={pagination.total}
+     label="assets"
+     onChange={setPage}
+   />
 
       {formAsset !== undefined && (
         <AssetForm asset={formAsset} onClose={() => setFormAsset(undefined)} onSaved={handleSaved} />
