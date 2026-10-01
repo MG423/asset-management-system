@@ -1,4 +1,5 @@
 import Employee from "../models/Employee.js";
+import Assignment from "../models/Assignment.js";
 import { pickFields, escapeRegex } from "../utils/queryHelpers.js";
 
 const FIELDS = ["employeeId", "name", "email", "department", "designation", "status"];
@@ -52,6 +53,10 @@ export const updateEmployee = async (req, res) => {
 };
 
 export const deleteEmployee = async (req, res) => {
+  if (await Assignment.exists({ employee: req.params.id })) {
+    res.status(400);
+    throw new Error("This employee has assignment history and can't be deleted. Mark them as inactive instead");
+  }
   const employee = await Employee.findByIdAndDelete(req.params.id);
   if (!employee) throw notFoundError(res);
   res.json({ message: "Employee deleted" });

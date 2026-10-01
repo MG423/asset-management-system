@@ -5,9 +5,10 @@ import AuthPage from "./pages/AuthPage";
 import Placeholder from "./pages/Placeholder";
 import Assets from "./pages/Assets";
 import Employees from "./pages/Employees";
+import Assignments from "./pages/Assignments";
 
 export default function App() {
-  const pages = { "/assets": <Assets />, "/employees": <Employees /> };
+  const pages = { "/assets": <Assets />, "/employees": <Employees />, "/assignments": <Assignments /> };
   return (
     <Routes>
       <Route path="/login" element={<AuthPage mode="login" />} />

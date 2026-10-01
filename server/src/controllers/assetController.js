@@ -1,4 +1,5 @@
 import Asset from "../models/Asset.js";
+import Assignment from "../models/Assignment.js";
 import { pickFields, escapeRegex } from "../utils/queryHelpers.js";
 
 const FIELDS = [
@@ -40,20 +41,46 @@ export const getAsset = async (req, res) => {
 };
 
 export const createAsset = async (req, res) => {
-  const asset = await Asset.create(pickFields(req.body, FIELDS));
+  const data = pickFields(req.body, FIELDS);
+  if (data.status === "assigned") {
+    res.status(400);
+    throw new Error("To assign an asset, use the Assignments page");
+  }
+  const asset = await Asset.create(data);
   res.status(201).json({ asset });
 };
 
 export const updateAsset = async (req, res) => {
-  const asset = await Asset.findByIdAndUpdate(req.params.id, pickFields(req.body, FIELDS), {
+  const data = pickFields(req.body, FIELDS);
+  const current = await Asset.findById(req.params.id);
+  if (!current) throw notFoundError(res);
+
+  if (data.status && data.status !== current.status) {
+    if (data.status === "assigned") {
+      res.status(400);
+      throw new Error("To assign an asset, use the Assignments page");
+    }
+    if (
+      current.status === "assigned" &&
+      (await Assignment.exists({ asset: current._id, status: "active" }))
+    ) {
+      res.status(400);
+      throw new Error("This asset is currently assigned. Return it from the Assignments page first");
+    }
+  }
+
+  const asset = await Asset.findByIdAndUpdate(current._id, data, {
     new: true,
     runValidators: true,
   });
-  if (!asset) throw notFoundError(res);
   res.json({ asset });
 };
 
 export const deleteAsset = async (req, res) => {
+  if (await Assignment.exists({ asset: req.params.id })) {
+    res.status(400);
+    throw new Error("This asset has assignment history and can't be deleted. Mark it as retired instead");
+  }
   const asset = await Asset.findByIdAndDelete(req.params.id);
   if (!asset) throw notFoundError(res);
   res.json({ message: "Asset deleted" });

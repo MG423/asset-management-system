@@ -4,6 +4,7 @@ import authRoutes from "./routes/authRoutes.js";
 import { notFound, errorHandler } from "./middleware/error.js";
 import assetRoutes from "./routes/assetRoutes.js";
 import employeeRoutes from "./routes/employeeRoutes.js";
+import assignmentRoutes from "./routes/assignmentRoutes.js";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/assets", assetRoutes);
 app.use("/api/employees", employeeRoutes);
+app.use("/api/assignments", assignmentRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
