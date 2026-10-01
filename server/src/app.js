@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import { notFound, errorHandler } from "./middleware/error.js";
+import assetRoutes from "./routes/assetRoutes.js";
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/assets", assetRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

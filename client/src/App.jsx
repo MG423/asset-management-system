@@ -3,8 +3,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Layout, { navItems } from "./components/Layout";
 import AuthPage from "./pages/AuthPage";
 import Placeholder from "./pages/Placeholder";
+import Assets from "./pages/Assets";
 
 export default function App() {
+    const pages = { "/assets": <Assets /> };
   return (
     <Routes>
       <Route path="/login" element={<AuthPage mode="login" />} />
@@ -16,7 +18,7 @@ export default function App() {
             <Route
               key={item.to}
               path={item.to}
-              element={<Placeholder title={item.label} />}
+              element={pages[item.to] || <Placeholder title={item.label} />}
             />
           ))}
         </Route>

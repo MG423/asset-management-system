@@ -16,5 +16,9 @@ export const errorHandler = (err, req, res, next) => {
     message = Object.values(err.errors).map((e) => e.message).join(", ");
   }
 
+    if (err.name === "CastError") {
+    status = 404;
+    message = "Resource not found";
+  }
   res.status(status).json({ message });
 };
