@@ -1,6 +1,7 @@
 import "dotenv/config";
 import mongoose from "mongoose";
 import Employee from "../models/Employee.js";
+import Assignment from "../models/Assignment.js";
 
 const first = ["Aarav", "Emma", "Liam", "Sneha", "Noah", "Diya", "Oliver", "Meera",
   "Lucas", "Isha", "Ethan", "Zara", "Mason", "Anaya", "Leo"];
@@ -10,8 +11,10 @@ const designations = ["Associate", "Analyst", "Engineer", "Manager", "Executive"
 
 await mongoose.connect(process.env.MONGO_URI);
 
-// Only removes previously seeded records (example.com emails), never real data
-await Employee.deleteMany({ email: /@example\.com$/ });
+   // Removes previously seeded employees and their assignments
+const oldIds = (await Employee.find({ email: /@example\.com$/ }).select("_id")).map((e) => e._id);
+await Assignment.deleteMany({ employee: { $in: oldIds } });
+await Employee.deleteMany({ _id: { $in: oldIds } });
 
 const employees = first.map((f, i) => {
   const l = last[i % last.length];

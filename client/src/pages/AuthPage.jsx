@@ -71,10 +71,14 @@ export default function AuthPage({ mode }) {
         </button>
 
         <p className="text-sm text-slate-600">
-          {isLogin ? "No account? " : "Already registered? "}
-          <Link to={isLogin ? "/register" : "/login"} className="text-blue-600">
-            {isLogin ? "Register" : "Login"}
-          </Link>
+          {isLogin ? (
+            "Need an account? Ask an administrator."
+          ) : (
+            <>
+              Already registered?{" "}
+              <Link to="/login" className="text-blue-600">Login</Link>
+            </>
+          )}
         </p>
       </form>
     </div>

@@ -11,6 +11,7 @@ import Assignments from "./pages/Assignments";
 import Maintenance from "./pages/Maintenance";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   const { search } = useLocation();
@@ -45,6 +46,7 @@ export default function App() {
           ))}
         </Route>
       </Route>
+        <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

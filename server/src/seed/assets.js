@@ -1,14 +1,19 @@
 import "dotenv/config";
 import mongoose from "mongoose";
 import Asset from "../models/Asset.js";
+import Assignment from "../models/Assignment.js";
+import MaintenanceRecord from "../models/MaintenanceRecord.js";
 
 const categories = ["Laptop", "Desktop", "Monitor", "Printer", "Phone", "Furniture", "Other"];
 const statuses = ["available", "assigned", "maintenance"];
 
 await mongoose.connect(process.env.MONGO_URI);
 
-// Only removes previously seeded records, never your own data
-await Asset.deleteMany({ notes: "seed" });
+   // Removes previously seeded assets and any records pointing at them
+const oldIds = (await Asset.find({ notes: "seed" }).select("_id")).map((a) => a._id);
+await Assignment.deleteMany({ asset: { $in: oldIds } });
+await MaintenanceRecord.deleteMany({ asset: { $in: oldIds } });
+await Asset.deleteMany({ _id: { $in: oldIds } });
 
 const assets = Array.from({ length: 25 }, (_, i) => ({
   assetTag: `AST-${101 + i}`,
