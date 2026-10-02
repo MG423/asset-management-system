@@ -1,3 +1,5 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -13,10 +15,11 @@ import userRoutes from "./routes/userRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import { notFound, errorHandler } from "./middleware/error.js";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
-// When deployed behind a proxy (Render, Nginx, etc.), also enable:
-// app.set("trust proxy", 1);
+// Behind Render's proxy, trust it so rate limits use each visitor's real IP
+if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
 
 const limiterOptions = { windowMs: 15 * 60 * 1000, standardHeaders: true, legacyHeaders: false };
 
@@ -35,7 +38,12 @@ const authLimiter = rateLimit({
   message: { message: "Too many login attempts. Please try again in 15 minutes" },
 });
 
-app.use(helmet());
+app.use(
+  helmet({
+    // Lets you test the production build over http://localhost (Render is https anyway)
+    contentSecurityPolicy: { directives: { "upgrade-insecure-requests": null } },
+  })
+);
 app.use(cors({ origin: process.env.CLIENT_URL }));
 app.use(express.json({ limit: "100kb" }));
 
@@ -56,6 +64,17 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/search", searchRoutes);
+// Serve built React static files
+const clientDist = path.join(__dirname, "../../client/dist");
+app.use(express.static(clientDist));
+
+// In production (or when client/dist exists), fallback non-API routes to index.html (Express 5 syntax)
+app.get("/{*splat}", (req, res, next) => {
+  if (req.path.startsWith("/api")) return next();
+  res.sendFile(path.join(clientDist, "index.html"), (err) => {
+    if (err) next(); // Fall back to 404 handler if index.html doesn't exist
+  });
+});
 
 app.use(notFound);
 app.use(errorHandler);
