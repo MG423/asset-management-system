@@ -8,9 +8,10 @@ import Employees from "./pages/Employees";
 import Assignments from "./pages/Assignments";
 import Maintenance from "./pages/Maintenance";
 import Dashboard from "./pages/Dashboard";
+import Reports from "./pages/Reports";
 
 export default function App() {
-  const pages = { "/assets": <Assets />, "/employees": <Employees />, "/assignments": <Assignments />, "/maintenance": <Maintenance />, "/": <Dashboard /> };
+  const pages = { "/assets": <Assets />, "/employees": <Employees />, "/assignments": <Assignments />, "/maintenance": <Maintenance />, "/reports": <Reports />, "/": <Dashboard /> };
   return (
     <Routes>
       <Route path="/login" element={<AuthPage mode="login" />} />
