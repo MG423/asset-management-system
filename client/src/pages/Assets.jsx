@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import useDebounce from "../hooks/useDebounce";
@@ -11,7 +12,8 @@ export default function Assets() {
   const { user } = useAuth();
   const [assets, setAssets] = useState([]);
   const [pagination, setPagination] = useState({ pages: 1, total: 0 });
-  const [search, setSearch] = useState("");
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get("q") || "");
   const [status, setStatus] = useState("");
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);

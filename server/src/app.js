@@ -8,6 +8,8 @@ import assignmentRoutes from "./routes/assignmentRoutes.js";
 import maintenanceRoutes from "./routes/maintenanceRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import searchRoutes from "./routes/searchRoutes.js";
 
 import { logActivity } from "./utils/logActivity.js";
 
@@ -27,6 +29,8 @@ app.use("/api/assignments", assignmentRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/search", searchRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

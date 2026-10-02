@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import GlobalSearch from "./GlobalSearch";
 
 export const navItems = [
   { label: "Dashboard", to: "/" },
@@ -39,6 +40,7 @@ export default function Layout() {
       <div className="flex-1">
         <header className="flex items-center justify-between bg-white px-6 py-3 shadow">
           <span className="font-semibold">Asset Management System</span>
+          <GlobalSearch />
           <div className="flex items-center gap-4">
             <span>👤 {user.name}</span>
             <button

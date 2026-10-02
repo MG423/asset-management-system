@@ -1,17 +1,30 @@
-import { Routes, Route } from "react-router-dom";
+import { Fragment } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout, { navItems } from "./components/Layout";
 import AuthPage from "./pages/AuthPage";
 import Placeholder from "./pages/Placeholder";
+import Dashboard from "./pages/Dashboard";
 import Assets from "./pages/Assets";
 import Employees from "./pages/Employees";
 import Assignments from "./pages/Assignments";
 import Maintenance from "./pages/Maintenance";
-import Dashboard from "./pages/Dashboard";
 import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
 
 export default function App() {
-  const pages = { "/assets": <Assets />, "/employees": <Employees />, "/assignments": <Assignments />, "/maintenance": <Maintenance />, "/reports": <Reports />, "/": <Dashboard /> };
+  const { search } = useLocation();
+
+  const pages = {
+    "/": <Dashboard />,
+    "/assets": <Assets />,
+    "/employees": <Employees />,
+    "/assignments": <Assignments />,
+    "/maintenance": <Maintenance />,
+    "/reports": <Reports />,
+    "/settings": <Settings />,
+  };
+
   return (
     <Routes>
       <Route path="/login" element={<AuthPage mode="login" />} />
@@ -23,7 +36,11 @@ export default function App() {
             <Route
               key={item.to}
               path={item.to}
-              element={pages[item.to] || <Placeholder title={item.label} />}
+              element={
+                <Fragment key={search}>
+                  {pages[item.to] || <Placeholder title={item.label} />}
+                </Fragment>
+              }
             />
           ))}
         </Route>
